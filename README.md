@@ -1,61 +1,16 @@
-# HEXE
+The intention here is to change the format of the output file to contain its own images and scripts so the prefabs are truly portable and largely don't need to be contextual.
 
-![HEXE](/hexe.png "HEXE")
-
-**HEXE** (Witch) is a prefab editor and runtime library for the [Heaps](https://heaps.io/) game engine. **HEXE** is focused on 2D content and serves as a more user-friendly alternative to **Hide** (Heaps IDE).
-
-# How It Works
-
-Use the editor to create a prefab from your project assets and save it as a file in the `res` directory. Then, you can use the `hxe.Lib` library to load the prefab file into the game as an `hxe.Prefab` display object.
-
-# Supported Objects
-
-List of Heaps h2d objects that can be added to a prefab:
-
-- [x] **Object**
-- [x] **Bitmap from image file**
-- [x] **Bitmap from loaded Texture Atlas**
-- [x] **Text with default or loaded Font**
-- [x] **Interactive**
-- [x] **Graphics**
-- [x] **Linked Prefab**
-- [x] **Anim**
-- [x] **ScaleGrid** 
-- [x] **Mask**
-
-
-# Quick Start
-
-[Download](https://github.com/nayata/hexe/releases) the editor and create your prefab. 
-
-Install the library from haxelib:
-
+MyObject.prefab
 ```
-haxelib install prefab
+/res
+/src
+prefab.json
 ```
 
-Alternatively the dev version of the library can be installed from github:
+Then just include this in the heaps res folder, fully self contained.
+
+Scripts can be trivially imported via macros, the main question will be the api by which they will be created. Perhaps something like:
 
 ```
-haxelib git prefab https://github.com/nayata/prefab.git
+var obj = Prefabs.MyObject(...); // some.synthetic.package.internal.MyObject extends h2d.Object;
 ```
-
-Include the library in your project's `.hxml`:
-
-```
--lib prefab
-```
-
-Use `hxe.Lib` to load and add a prefab instance to the scene. Note: the prefab name must be without extension.
-
-```haxe
-var object:hxe.Prefab = hxe.Lib.load("myPrefab", s2d);
-```
-
-# Documentation
-
-* [Introduction](https://nayata.github.io/hexe)  
-* [Quick Start](https://nayata.github.io/hexe/#quick-start)  
-* [Working with editor](https://nayata.github.io/hexe/#working-with-editor)  
-* [In-game implementation](https://nayata.github.io/hexe-lib)  
-* [API](https://nayata.github.io/hexe-api)
