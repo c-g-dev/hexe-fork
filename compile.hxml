@@ -1,6 +1,7 @@
 -cp src
 -lib heaps
--lib hldx
+-lib hlsdl
+-lib zip
 -hl HEXE.hl
 -main Editor
 -D windowSize=1600x900
