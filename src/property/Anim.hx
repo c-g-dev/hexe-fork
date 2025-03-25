@@ -134,12 +134,18 @@ class Anim extends Property {
 		// msg: swap images only in res folder
 		if (Editor.ME.file.isExternal(path)) return;
 
-		var src = Editor.ME.file.getPath(path);
-
+		Editor.ME.file.compositePrefab.addResource(getFileName(path), sys.io.File.getBytes(path));
+		var src = getFileName(path);
+		
 		onChange({ field : "bitmap", from : file.value, to : src });
 		file.value = src;
 		select(object);
 	}
+
+	public function getFileName(file:String): String {
+        var name = haxe.io.Path.withoutDirectory(file);
+        return name;
+    }
 
 
 	function openTexture(prop:Dynamic) {

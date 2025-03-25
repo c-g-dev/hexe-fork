@@ -43,12 +43,13 @@ class Editor extends hxd.App {
 
 	
     static function main() {
+		trace("main");
 		ME = new Editor();
     }
 
 
 	override function init() {
-		hl.UI.closeConsole();
+		//hl.UI.closeConsole();
 		engine.backgroundColor = Style.background;
 		
 		#if( hl && debug )
@@ -60,6 +61,7 @@ class Editor extends hxd.App {
 		Config.init();
 		Assets.init();
 		
+		trace("init");
 		grid = new Grid(s2d.width, s2d.height, Config.gridSize, s2d);
 		grid.onMove(200, 200);
 

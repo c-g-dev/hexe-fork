@@ -3,6 +3,7 @@
 -lib hlsdl
 -lib zip
 -hl HEXE.hl
+-debug
 -main Editor
 -D windowSize=1600x900
 -D windowFixed=0

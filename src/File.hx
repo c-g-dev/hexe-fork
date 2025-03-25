@@ -7,14 +7,14 @@ class File {
     public var directory:String = "";
     public var filepath:String = "";
 
-    public var filename:String = "untitled.cprefab";
-    public var defaultName:String = "untitled.cprefab";
+    public var filename:String = "untitled.prefab";
+    public var defaultName:String = "untitled.prefab";
     public var project:String = "untitled";
 
     var empty:String = "";
     var temp:String = "";
 
-	var compositePrefab:CompositePrefab = new CompositePrefab();
+	public var compositePrefab:CompositePrefab = new CompositePrefab();
 
     var editor:Editor;
 
@@ -23,6 +23,7 @@ class File {
     }
 
     public function openfile(title:String, name:String, extensions:Array<String>) {
+        trace("openfile");
         var options:hl.UI.FileOptions = { };
         options.title = title;
         options.filters = [{name: name, exts: extensions}];
@@ -37,7 +38,7 @@ class File {
     }
 
     public function open() {
-        var file = openfile("Open File", "Composite Prefab Files", ["cprefab"]); // Updated extension
+        var file = openfile("Open File", "Composite Prefab Files", ["prefab"]); // Updated extension
         if (file == null) return;
 
 
@@ -279,7 +280,7 @@ class File {
         data.type = "prefab";
         data.children = children;
 
-
+/*
         var compositePrefab = new CompositePrefab(data);
         var resources = new Map<String, Bool>();
         collectResources(data, resources);
@@ -293,7 +294,8 @@ class File {
                 trace("Warning: Resource not found: " + fullPath);
             }
         }
-
+*/      
+        compositePrefab.prefab = data;
         var zipBytes = compositePrefab.toZipBytes();
 
 
@@ -304,7 +306,7 @@ class File {
             var options:hl.UI.FileOptions = { };
             options.title = "Save File";
             options.fileName = filename;
-            options.filters = [{name: "cprefab", exts: ["cprefab"]}]; // Updated extension
+            options.filters = [{name: "prefab", exts: ["prefab"]}]; // Updated extension
             
             var allowTimeout = hxd.System.allowTimeout;
             hxd.System.allowTimeout = false;
@@ -314,7 +316,7 @@ class File {
 
             if (file != null) {
                 directory = getDirectory(file);
-                filepath = haxe.io.Path.withoutExtension(file) + ".cprefab";
+                filepath = haxe.io.Path.withoutExtension(file) + ".prefab";
                 filename = haxe.io.Path.withoutDirectory(filepath);
                 
                 sys.io.File.saveBytes(filepath, zipBytes);
@@ -352,6 +354,7 @@ class File {
 			openAtlas(type); // Initial atlas load from filesystem
 			return;
 		}
+        
 	
 		function onSelect(name:String) {
 			var atlas = editor.texture.atlas;
@@ -393,6 +396,8 @@ class File {
         var file = openfile("Open Image", "Image Files", ["png", "jpeg", "jpg"]);
         if (file == null) return;
 
+        compositePrefab.addResource(getFileName(file), sys.io.File.getBytes(file));
+
         var data = sys.io.File.getBytes(file);
         var tile = hxd.res.Any.fromBytes(file, data).toImage().toTile();
         var name = haxe.io.Path.withoutDirectory(file).split(".").shift();
@@ -409,7 +414,7 @@ class File {
         }
 
         prefab.tile = tile;
-        prefab.src = getPath(file); // Relative path, embedded during save()
+        prefab.src = getFileName(file); // Relative path, embedded during save()
 
         prefab.name = editor.getUID(prefab.type);
         prefab.object.name = prefab.name;
@@ -420,21 +425,23 @@ class File {
 
 
     public function openPrefab() {
-        var file = openfile("Open File", "Composite Prefab Files", ["cprefab"]);
+        var file = openfile("Open File", "Composite Prefab Files", ["prefab"]);
         if (file == null) return;
 
+        compositePrefab.addResource(getFileName(file), sys.io.File.getBytes(file));
+
         var bytes = sys.io.File.getBytes(file);
-        var compositePrefab = CompositePrefab.fromZipBytes(bytes);
+        var innerCompositePrefab = CompositePrefab.fromZipBytes(bytes);
 
         var name = haxe.io.Path.withoutDirectory(file).split(".").shift();
         var path = directory != empty ? directory : getDirectory(file);
 
-        var prefab = loadPrefab(compositePrefab);
+        var prefab = loadPrefab(innerCompositePrefab);
 
         prefab.name = editor.getUID(prefab.type);
         prefab.object.name = prefab.name;
         prefab.link = name;
-        prefab.src = getPath(file); // Relative path to .cprefab
+        prefab.src = getFileName(file); // Relative path to .prefab
 
         editor.scene.addChild(prefab.object);
         editor.add(prefab.object, prefab);
@@ -523,7 +530,8 @@ class File {
 	public function openAtlas(type:String = "bitmap") {
         var file = openfile("Open Texture Atlas", "Texture Atlas Files", ["atlas"]);
         if (file == null) return;
-
+        
+        compositePrefab.addResource(getFileName(file), sys.io.File.getBytes(file));
         var folder = haxe.io.Path.directory(file).split("\\").join("/") + "/";
         var name = haxe.io.Path.withoutDirectory(file).split(".").shift();
 
@@ -535,7 +543,7 @@ class File {
         var imageData = sys.io.File.getBytes(imagePath);
         var tile = hxd.res.Any.fromBytes(imagePath, imageData).toImage().toTile();
         var entry = atlasData.toString();
-        var path = getPath(file); // Relative path for atlas
+        var path = file; // Relative path for atlas
 
         var atlas = new Texture.Atlas(name, entry, tile);
 
@@ -569,7 +577,8 @@ class File {
 
         var name = haxe.io.Path.withoutDirectory(file).split(".").shift();
         var font = getFont(file); // Load from filesystem initially
-        var path = getPath(file); // Relative path
+        compositePrefab.addResource(getFileName(file), sys.io.File.getBytes(file));
+        var path = file; // Relative path
 
         editor.addFont(font, name, path);
         return name;
@@ -613,8 +622,13 @@ class File {
         return font;
     }
 
+    public function getFileName(file:String): String {
+        var name = haxe.io.Path.withoutDirectory(file);
+        return name;
+    }
 
-    public function getPath(file:String) {
+
+    /*public function getPath(file:String) {
         var folder = haxe.io.Path.directory(file).split("\\").join("/") + "/";
         var name = haxe.io.Path.withoutDirectory(file);
 
@@ -631,7 +645,7 @@ class File {
         if (StringTools.startsWith(folder.toLowerCase(), directory.toLowerCase())) return folder.substr(directory.length) + name;
 
         return name;
-    }
+    }*/
 
 
     public function getDirectory(file:String) {

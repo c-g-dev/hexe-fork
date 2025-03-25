@@ -48,6 +48,7 @@ class CompositePrefab {
         });
         
         for (name in resources.keys()) {
+            trace("saving resource: " + name);
             var data = resources.get(name);
             entries.add({
                 fileName: "res/" + name,
@@ -91,6 +92,7 @@ class CompositePrefab {
     }
     
     public function addResource(name: String, data: Bytes): Void {
+        trace("adding resource: " + name);
         resources.set(name, data);
     }
 }
