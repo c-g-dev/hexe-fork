@@ -20,7 +20,5 @@ Also not sure if we would want the scripts to be full Object classes or just som
 Ideally we would add a [Test] button which will create an entire heaps project, inject the prefab, run the build, and then launch the hashlink to see the entire thing in action.
 
 ## Current State
-File input/output format changed and working, which is a huge step.
-
-Next step is to edit the current hex loader to read the zip and pull the /res entries into the heaps resources so that these prefabs can actually run.
+Fully functional as far as I can tell. Will need to change the "type" output to match the fully qualified classes, as is the design of the corresponding Heaps Prefab library I have parallel to this. 
 
